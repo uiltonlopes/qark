@@ -63,7 +63,7 @@ class ImplicitIntentToPendingIntent(CoroutinePlugin):
                             if reference_declaration.name == "Intent":
                                 self.issues.append(Issue(category=self.category, severity=self.severity,
                                                          name=self.name, description=self.description,
-                                                         file_object=self.file_path))
+                                                         file_object=self.file_path, line_number=pending_intent_invocation.position))
 
 
 plugin = ImplicitIntentToPendingIntent()

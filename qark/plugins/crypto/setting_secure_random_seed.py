@@ -38,7 +38,7 @@ class SeedWithSecureRandom(CoroutinePlugin):
 
             if method_invocation.member in SeedWithSecureRandom.INSECURE_FUNCTIONS:
                 self.issues.append(Issue(self.category, self.name, self.severity, self.description,
-                                         file_object=self.file_path))
+                                         file_object=self.file_path, line_number=method_invocation.position))
 
 
 plugin = SeedWithSecureRandom()

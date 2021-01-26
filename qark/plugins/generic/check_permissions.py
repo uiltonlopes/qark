@@ -3,6 +3,8 @@ import re
 
 from qark.issue import Severity, Issue
 from qark.scanner.plugin import JavaASTPlugin
+from qark.plugins.helpers import run_regex2
+
 
 log = logging.getLogger(__name__)
 
@@ -28,17 +30,19 @@ class CheckPermissions(JavaASTPlugin):
 
     def run(self):
         if any("Context" in imp.path for imp in self.java_ast.imports):
-            if re.search(CHECK_PERMISSION_REGEX, self.file_contents):
+
+            for result in run_regex2(self.file_path, CHECK_PERMISSION_REGEX):
                 self.issues.append(Issue(
                     category=self.category, severity=self.severity, name=self.name,
                     description=self.description.format(used_permission="Check", recommended_permission="check"),
-                    file_object=self.file_path)
+                    file_object=self.file_path, line_number=result[1])
                 )
-            if re.search(ENFORCE_PERMISSION_REGEX, self.file_contents):
+
+            for result in run_regex2(self.file_path, ENFORCE_PERMISSION_REGEX):
                 self.issues.append(Issue(
                     category=self.category, severity=self.severity, name=self.name,
                     description=self.description.format(used_permission="Enforce", recommended_permission="enforce"),
-                    file_object=self.file_path)
+                    file_object=self.file_path, line_number=result[1])
                 )
 
 

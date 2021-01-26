@@ -32,7 +32,7 @@ class ECBCipherCheck(CoroutinePlugin):
                                                                                         encryption_type):
                     description = "getInstance should not be called with ECB as the cipher mode, as it is insecure."
                     self.issues.append(
-                        Issue(self.category, self.name, self.severity, description, file_object=self.file_path))
+                        Issue(self.category, self.name, self.severity, description, file_object=self.file_path, line_number=method_invocation.position))
             except Exception:
                 continue
 

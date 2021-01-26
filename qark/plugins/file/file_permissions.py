@@ -2,7 +2,7 @@ import logging
 import re
 
 from qark.issue import Severity, Issue
-from qark.plugins.helpers import run_regex
+from qark.plugins.helpers import run_regex2
 from qark.scanner.plugin import FileContentsPlugin
 
 log = logging.getLogger(__name__)
@@ -23,12 +23,15 @@ class FilePermissions(FileContentsPlugin):
         self.severity = Severity.WARNING
 
     def run(self):
-        if run_regex(self.file_path, WORLD_READABLE):
+        results = run_regex2(self.file_path, WORLD_READABLE)
+        for result in results:
             self.issues.append(Issue(category=self.category, name="World readable file", severity=self.severity,
-                                     description=WORLD_READABLE_DESCRIPTION, file_object=self.file_path))
-        if run_regex(self.file_path, WORLD_WRITEABLE):
+                                     description=WORLD_READABLE_DESCRIPTION, file_object=self.file_path, line_number=result[1]))
+
+        results = run_regex2(self.file_path, WORLD_WRITEABLE)
+        for result in results:
             self.issues.append(Issue(category=self.category, name="World writeable file", severity=self.severity,
-                                     description=WORLD_WRITEABLE_DESCRIPTION, file_object=self.file_path))
+                                     description=WORLD_WRITEABLE_DESCRIPTION, file_object=self.file_path, line_number=result[1]))
 
 
 plugin = FilePermissions()

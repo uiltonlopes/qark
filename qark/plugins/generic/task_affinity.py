@@ -3,6 +3,7 @@ import re
 
 from qark.issue import Severity, Issue
 from qark.scanner.plugin import JavaASTPlugin
+from qark.plugins.helpers import run_regex2
 
 log = logging.getLogger(__name__)
 
@@ -25,17 +26,23 @@ class TaskAffinity(JavaASTPlugin):
         if any("Intent" in import_decl.path for import_decl in self.java_ast.imports):
             description = None
 
-            if re.search(NEW_TASK_REGEX, self.file_contents):
+            for result in run_regex2(self.file_path, NEW_TASK_REGEX):
                 description = TASK_AFFINITY_DESCRIPTION.format(type="NEW")
-            elif re.search(MULTIPLE_TASK_REGEX, self.file_contents):
-                description = TASK_AFFINITY_DESCRIPTION.format(type="MULTIPLE")
-
-            if description:
                 self.issues.append(Issue(category=self.category,
                                          severity=self.severity,
                                          name=self.name,
                                          description=description,
-                                         file_object=self.file_path))
+                                         file_object=self.file_path,
+                                         line_number=result[1]))
+
+            for result in run_regex2(self.file_path, MULTIPLE_TASK_REGEX):
+                description = TASK_AFFINITY_DESCRIPTION.format(type="MULTIPLE")
+                self.issues.append(Issue(category=self.category,
+                                         severity=self.severity,
+                                         name=self.name,
+                                         description=description,
+                                         file_object=self.file_path,
+                                         line_number=result[1]))
 
 
 plugin = TaskAffinity()

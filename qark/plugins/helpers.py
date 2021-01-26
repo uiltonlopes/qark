@@ -45,6 +45,34 @@ def run_regex(filename, rex, encoding="utf-8"):
     return things_to_inspect
 
 
+def run_regex2(filename, rex, encoding="utf-8"):
+    """
+    Read a file line by line, run a regular expression against the content and return list of things that require inspection
+
+    :param str filename: path to file
+    :param Union[re.Pattern, str, bytes] rex: can be a compiled regex or a string/bytes of the regex to search
+    :param str encoding: encoding to read the files
+    """
+    things_to_inspect = []
+    try:
+        line_number = 1
+        with open(filename, encoding=encoding) as f:
+            for curr_line in f:
+                if re.search(rex, curr_line):
+                    # exclude everything in EXCLUDE_REGEXES
+                    if not re.match(EXCLUSION_REGEX, curr_line):
+                        things_to_inspect.append([curr_line, (line_number, 0)])
+                line_number += 1
+
+    except IOError:
+        log.debug("Unable to open file: %s results will be inaccurate", filename)
+    except UnicodeDecodeError:
+        pass  # Since the user passes in the encoding we eat this error - any occurrences of this are expected
+    except Exception:
+        log.exception("Failed to read file: %s", filename)
+    return things_to_inspect
+
+
 def java_files_from_files(files):
     """
     Returns a generator of everything in `files` that ends with the `.java` extension.

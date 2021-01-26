@@ -3,6 +3,8 @@ import re
 
 from qark.issue import Severity, Issue
 from qark.scanner.plugin import FileContentsPlugin
+from qark.plugins.helpers import run_regex2
+
 
 log = logging.getLogger(__name__)
 
@@ -24,24 +26,29 @@ class PhoneIdentifier(FileContentsPlugin):
 
     def run(self):
         if re.search(TELEPHONY_MANAGER_REGEX, self.file_contents):
-            if re.search(TELEPHONY_INLINE_REGEX, self.file_contents):
-                self._add_issue(java_path=self.file_path)
+            results = run_regex2(self.file_path, TELEPHONY_INLINE_REGEX)
+
+            if len(results) > 0:
+                for result in results:
+                    self._add_issue(self.file_path, result[1])
 
             else:
 
                 for match in re.finditer(TELEPHONY_MANAGER_VARIABLE_NAMES_REGEX, self.file_contents):
 
                     for variable_name in match.group(2):
+                        regex = r'{var_name}\.(getLine1Number|getDeviceId)\(.*?\)'.format(var_name=variable_name)
 
-                        if re.search(r'{var_name}\.(getLine1Number|getDeviceId)\(.*?\)'.format(var_name=variable_name),
-                                     self.file_contents):
-                            self._add_issue(java_path=self.file_path)
+                        for result in run_regex2(self.file_path, regex):
+                            self._add_issue(self.file_path, result[1])
 
-    def _add_issue(self, java_path):
+
+    def _add_issue(self, java_path, line_number=(0,0)):
         self.issues.append(Issue(
             category=self.category, severity=self.severity, name=self.name,
             description=self.description,
-            file_object=java_path)
+            file_object=java_path,
+            line_number=line_number)
         )
 
 

@@ -41,12 +41,12 @@ class HostnameVerifier(CoroutinePlugin):
                 if class_.type.name == "AllowAllHostnameVerifier":
                     self.issues.append(Issue(category=self.category, name="Allow all hostname verifier used",
                                              severity=Severity.WARNING, description=ALLOW_ALL_HOSTNAME_VERIFIER_DESC,
-                                             file_object=self.file_path))
+                                             file_object=self.file_path, line_number=0))
 
                 elif class_.type.name == "NullHostNameVerifier" or class_.type.name == "NullHostnameVerifier":
                     self.issues.append(Issue(category=self.category, name="Allow all hostname verifier used",
                                              severity=Severity.WARNING, description=ALLOW_ALL_HOSTNAME_VERIFIER_DESC,
-                                             file_object=self.file_path))
+                                             file_object=self.file_path, line_number=1))
 
             elif isinstance(class_, MethodInvocation):
                 if (class_.member == "setHostnameVerifier"
